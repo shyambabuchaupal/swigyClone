@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import RestaurantCard from "./RestaurantCard";
 const TopRestaurant = ({ data }) => {
   console.log(data);
 
@@ -31,7 +32,7 @@ const TopRestaurant = ({ data }) => {
   }
   return (
     <>
-      <div className="my-16">
+      <div className="mt-16">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">{`Top restaurant chains in Noida 1`}</h1>
           <div className="flex gap-4">
@@ -54,46 +55,12 @@ const TopRestaurant = ({ data }) => {
           className="flex  mt-4 gap-5 w-full   duration-1000"
           style={{ translate: `-${value}%` }}
         >
-          {data.map(({ info }) => {
+          {data.map(({ info, cta :{link} }) => {
             return (
-              <div key={info?.id} className="hover:scale-90 duration-300">
-                <div className="min-w-[295px] h-[182px] relative">
-                  <img
-                    className="w-full h-full object-cover rounded-2xl"
-                    src={`https://media-assets.swiggy.com/swiggy/image/upload/${info?.cloudinaryImageId}`}
-                    alt={`Item ${info?.name}`}
-                  />
-                  <div className="w-full h-full rounded-2xl absolute top-0 bg-gradient-to-t from-black from-1% to-transparent to-40%"></div>
-                  <p className="text-white absolute bottom-0 left-2 text-base font-bold mb-2">
-                    {info.aggregatedDiscountInfoV3?.header + " "}
-                    {info.aggregatedDiscountInfoV3?.subHeader}
-                  </p>
-
-                  
-
+              <div key={info?.id} className="hover:scale-95 duration-300">
                 
-                </div>
 
-                <div className="mt-2 ml-2">
-                    <h1 className="text-black text-xl font-bold">{info.name}</h1>
-                    <p>
-                      <i className="fi fi-sr-circle-star text-green-600"></i>
-                      <span className="text-base text-black font-bold">
-                        {" "}
-                        {info.avgRating}
-                      </span>{" "}
-                      <span className="text-base text-black font-bold">
-                        {info.sla?.slaString
-                        }
-                      </span>
-                    </p>
-                    <p className="text-base text-gray-500 font-semibold">
-                      {info.cuisines.join(", ")}
-                    </p>
-                    <p className="text-base text-gray-500 font-semibold">
-                      {info.locality}
-                    </p>
-                  </div>
+                <RestaurantCard {...info} link={link}/>
               </div>
             );
           })}

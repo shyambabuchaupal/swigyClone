@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import OnYourMind from "./OnYourMind";
 import TopRestaurant from "./TopRestaurant";
+import OnlineFoodDelivery from "./OnlineFoodDelivery";
 
 function Body() {
 
@@ -9,7 +10,7 @@ const[topRestaurantData, setTopRestaurantData] = useState([])
 
   async function fetchData() {
     const data = await fetch(
-      "/api/dapi/restaurants/List/v5?lat=18.9690247&lng=72.8205292&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
+      "/api/dapi/restaurants/List//v5?lat=28.5355161&lat=28.5355161&lng=77.3910265&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
     );
     const result = await data.json();
     // console.log(result?.data?.cards[0]?.card?.card?.imageGridCards?.info);
@@ -28,6 +29,7 @@ const[topRestaurantData, setTopRestaurantData] = useState([])
         <div className="w-[80%] mx-auto  mt-3  overflow-hidden">
           <OnYourMind data={onYourMindData}/>
           <TopRestaurant data={topRestaurantData}/>
+          <OnlineFoodDelivery data={topRestaurantData}/>
           
         </div>
       </div>
