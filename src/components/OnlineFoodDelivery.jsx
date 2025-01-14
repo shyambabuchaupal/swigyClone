@@ -8,10 +8,10 @@ const OnlineFoodDelivery = ({ data }) => {
         Restaurants with online food delivery in Noida 1
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-        {data.map(({ info, cta: { link } }) => {
+        {data.map(({ info , cta : {link}}) => {
           return (
             <div key={info?.id} className="hover:scale-95 duration-300">
-              <RestaurantCard {...info} link={link} />
+              <RestaurantCard {...info} link={link}/>
             </div>
           );
         })}

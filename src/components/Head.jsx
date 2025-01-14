@@ -1,4 +1,6 @@
-import { Outlet, Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
+import img from '/src/assets/swiggylogo.webp';
+
 
 function Head() {
   const navItems = [
@@ -34,13 +36,15 @@ function Head() {
       <div className="w-[80%] flex justify-between">
         {/* Logo Section */}
         <div className="flex items-center gap-4">
-          <Link to={"/"}>
-          <img
+         
+         <Link to={"/"}>
+         <img
             className="w-16"
-            src="https://play-lh.googleusercontent.com/A8jF58KO1y2uHPBUaaHbs9zSvPHoS1FrMdrg8jooV9ftDidkOhnKNWacfPhjKae1IA"
+            src={img}
             alt="Company Logo"
           />
-          </Link>
+          
+         </Link>
           <div className="flex items-center text-center gap-2">
             <p className="text-sx font-semibold border-b-2 border-black">
               others
@@ -67,8 +71,8 @@ function Head() {
         </nav>
       </div>
     </header>
-
-    <Outlet/>
+<Outlet/>
+   
    </>
   );
 }

@@ -55,7 +55,7 @@ const TopRestaurant = ({ data }) => {
           className="flex  mt-4 gap-5 w-full   duration-1000"
           style={{ translate: `-${value}%` }}
         >
-          {data.map(({ info, cta :{link} }) => {
+          {data.map(({ info, cta : {link}}) => {
             return (
               <div key={info?.id} className="hover:scale-95 duration-300">
                 

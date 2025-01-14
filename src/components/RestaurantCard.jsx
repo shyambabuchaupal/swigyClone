@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
+
 const RestaurantCard = (info) => {
-  console.log(info.link);
+  // console.log(info?.link?.split("/").at(-1));
   return (
-    <>
-      <Link to={`/restaurantmenu/${info?.link}`}>
+   
+      <Link to={`/restaurantMenu/${info?.link?.split("/").at(-1)}`}>
         <div className="min-w-[295px] h-[182px] relative">
           <img
             className="w-full h-full object-cover rounded-2xl"
@@ -41,7 +42,7 @@ const RestaurantCard = (info) => {
           </p>
         </div>
       </Link>
-    </>
+    
   );
 };
 // Define prop types
