@@ -8,6 +8,13 @@ const RestaurantMenu = () => {
   const [resInfo, setResInfo] = useState([]);
   const [menuData, setMenuData] = useState([]);
   const [discountdata, setDiscountData] = useState([]);
+
+  // toogle useState defined
+
+  const [currentIndex, setCurrentIndex] = useState(null);
+
+  // console.log(menuData);
+
   const [value, setValue] = useState(0);
 
   function handlePrev() {
@@ -24,9 +31,14 @@ const RestaurantMenu = () => {
     );
     const res = await data.json();
     setResInfo(res?.data?.cards[2]?.card?.card?.info);
-    setMenuData(
-      res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[1]?.card?.card
-    );
+    // console.log(res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR);
+    // let actualMenudata =(res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards).filter(data => data?.card?.card?.itemCards)
+    let cardsArray =
+      res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards;
+    let actualMenudata = Array.isArray(cardsArray)
+      ? cardsArray.filter((data) => data?.card?.card?.itemCards)
+      : [];
+    setMenuData(actualMenudata);
     setDiscountData(
       res?.data?.cards[3]?.card?.card?.gridElements?.infoWithStyle?.offers
     );
@@ -36,12 +48,18 @@ const RestaurantMenu = () => {
     fetchMenu();
   }, []);
 
+  // function toogleFunction(i) {
+   
+  // }
+
   return (
     <div className="w-full">
       <div className="w-[800px] mx-auto pt-8">
         <p className="text-[12px] text-slate-500">
           <Link to="/">
-            <span className="hover:text-slate-700 hover:cursor-pointer">Home</span>
+            <span className="hover:text-slate-700 hover:cursor-pointer">
+              Home
+            </span>
           </Link>
           /
           <Link to="/">
@@ -49,8 +67,7 @@ const RestaurantMenu = () => {
               {resInfo.city}
             </span>
           </Link>
-          /
-          <span className="text-slate-700">{resInfo.name}</span>
+          /<span className="text-slate-700">{resInfo.name}</span>
         </p>
         <div className="pt-11 pb-5">
           <h1 className="font-bold text-2xl tracking-[-0.4px] leading-[28px] ms-5">
@@ -94,7 +111,9 @@ const RestaurantMenu = () => {
                     {resInfo.areaName}
                   </span>
                 </p>
-                <p className="font-bold text-[14px]">{resInfo?.sla?.slaString}</p>
+                <p className="font-bold text-[14px]">
+                  {resInfo?.sla?.slaString}
+                </p>
               </div>
             </div>
           </div>
@@ -120,27 +139,89 @@ const RestaurantMenu = () => {
           </div>
           <div className="flex gap-2 py-5">
             {discountdata?.map((data, index) => (
-              <Discount key={index} data={data} index={index} />
+              <Discount key={index} data={data} />
             ))}
           </div>
 
           <h2 className="text-[13px] leading-[16px] tracking-[4px] font-normal text-center flex justify-center items-center">
-           
             MENU
-          
           </h2>
+
+          <div className="w-full my-4 relative cursor-pointer">
+            <div className="w-full py-3 rounded-sm text-center bg-slate-200/70 fw-bold text-lg text-black ">
+              Search for dishes
+            </div>
+            <i
+              className="fi mt-1 fi-rr-search absolute top-3 right-4"
+              style={{ color: "rgba(2, 6, 12, 0.6)" }}
+            ></i>
+          </div>
+
+          <div>
+            {menuData?.map(({card: {card: { itemCards, title },},},i) => {
+                // console.log(itemCards);
+                return (
+                  <div key={i}>
+                   <MenuCard itemCards={itemCards} title={title}/>
+                  </div>
+                );
+              }
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-function Discount({
-  data: {
-    info: { header, offerLogo, couponCode },
-  },
-  index,
-}) {
+
+function MenuCard({itemCards, title}){
+  // console.log(card)
+  const [isOpen, setIsOpen]= useState(true)
+
+  function toggleUpArrow(){
+setIsOpen((isOpen)=>!isOpen)
+  }
+  return(
+    <>
+    <div className="w-full">
+      <div className="flex justify-between items-center">
+        <h1>{title} ({itemCards.length})</h1>
+        <i
+            className={`fi ${isOpen ? 'fi-br-angle-small-up' : 'fi-br-angle-small-down'} text-2xl`}
+            onClick={toggleUpArrow}
+          ></i>
+      </div>
+      {
+        isOpen && <MenuDetails itemCards={itemCards}/>
+      }
+    </div>
+   
+    </>
+  )
+}
+
+function MenuDetails({itemCards}){
+  console.log(itemCards)
+  return(
+   <>
+    <div className="my-7">
+     {
+      itemCards.map(({card:{info}, i})=>{
+        return(
+          <div key={i}>
+            <h2>{info.name}</h2>
+          </div>
+
+        )
+      })
+     }
+    </div>
+   </>
+  )
+}
+
+function Discount({data: {info: { header, offerLogo, couponCode },},index,}) {
   return (
     <div
       key={index}
@@ -175,9 +256,16 @@ Discount.propTypes = {
       header: PropTypes.string.isRequired,
       offerLogo: PropTypes.string.isRequired,
       couponCode: PropTypes.string.isRequired,
-    }),
-    index: PropTypes.number.isRequired,
+    }).isRequired,
   }).isRequired,
+  index: PropTypes.number.isRequired, // `index` at the top level
 };
-
+MenuCard.propTypes = {
+  itemCards: PropTypes.array.isRequired, // Validate `itemCards` as an array
+  title: PropTypes.string.isRequired,    // Validate `title` as a string
+};
+MenuDetails.propTypes = {
+  itemCards: PropTypes.array.isRequired, // Validate `itemCards` as an array
+  title: PropTypes.string.isRequired,    // Validate `title` as a string
+};
 export default RestaurantMenu;
