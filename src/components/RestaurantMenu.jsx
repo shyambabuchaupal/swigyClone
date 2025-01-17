@@ -11,8 +11,6 @@ const RestaurantMenu = () => {
 
   // toogle useState defined
 
-  const [currentIndex, setCurrentIndex] = useState(null);
-
   // console.log(menuData);
 
   const [value, setValue] = useState(0);
@@ -31,13 +29,11 @@ const RestaurantMenu = () => {
     );
     const res = await data.json();
     setResInfo(res?.data?.cards[2]?.card?.card?.info);
-    // console.log(res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR);
-    // let actualMenudata =(res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards).filter(data => data?.card?.card?.itemCards)
-    let cardsArray =
-      res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards;
-    let actualMenudata = Array.isArray(cardsArray)
-      ? cardsArray.filter((data) => data?.card?.card?.itemCards)
-      : [];
+    let actualMenudata =
+      (res?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards).filter(
+        (data) => data?.card?.card?.itemCards || data?.card?.card?.categories
+      );
+    // console.log(actualMenudata);
     setMenuData(actualMenudata);
     setDiscountData(
       res?.data?.cards[3]?.card?.card?.gridElements?.infoWithStyle?.offers
@@ -49,7 +45,7 @@ const RestaurantMenu = () => {
   }, []);
 
   // function toogleFunction(i) {
-   
+
   // }
 
   return (
@@ -158,70 +154,115 @@ const RestaurantMenu = () => {
           </div>
 
           <div>
-            {menuData?.map(({card: {card: { itemCards, title },},},i) => {
-                // console.log(itemCards);
-                return (
-                  <div key={i}>
-                   <MenuCard itemCards={itemCards} title={title}/>
-                  </div>
-                );
-              }
-            )}
+            {menuData?.map(({ card: { card } }, i) => {
+              // console.log(card);
+              return (
+                <div key={i}>
+                  <MenuCard card={card} />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-
-function MenuCard({itemCards, title}){
-  // console.log(card)
-  const [isOpen, setIsOpen]= useState(true)
-
-  function toggleUpArrow(){
-setIsOpen((isOpen)=>!isOpen)
+// menu card start here
+function MenuCard({ card }) {
+  let arrow = false;
+  if (card["@type"]) {
+    arrow = true;
   }
-  return(
-    <>
-    <div className="w-full">
-      <div className="flex justify-between items-center">
-        <h1>{title} ({itemCards.length})</h1>
-        <i
-            className={`fi ${isOpen ? 'fi-br-angle-small-up' : 'fi-br-angle-small-down'} text-2xl`}
+
+  if (!card) {
+    // Handle case where `card` is undefined or null
+    return null;
+  }
+
+  const [isOpen, setIsOpen] = useState(arrow);
+
+  function toggleUpArrow() {
+    setIsOpen((prevIsOpen) => !prevIsOpen);
+  }
+
+  if (card.itemCards) {
+    const { title, itemCards } = card;
+
+    return (
+      <>
+        <div className="w-full">
+          <div
+            className="flex justify-between items-center"
             onClick={toggleUpArrow}
-          ></i>
-      </div>
-      {
-        isOpen && <MenuDetails itemCards={itemCards}/>
-      }
-    </div>
-   
-    </>
-  )
-}
+          >
+            <h1
+              className={`font-bold leading-[20px] tracking-[-0.3px] text-black text-${
+                card["@type"] ? "[18px]" : "[16px]"
+              }`}
+            >
+              {title} ({itemCards.length})
+            </h1>
 
-function MenuDetails({itemCards}){
-  console.log(itemCards)
-  return(
-   <>
-    <div className="my-7">
-     {
-      itemCards.map(({card:{info}, i})=>{
-        return(
-          <div key={i}>
-            <h2>{info.name}</h2>
+            <i
+              className={`fi ${
+                isOpen ? "fi-br-angle-small-up" : "fi-br-angle-small-down"
+              } text-2xl`}
+            ></i>
           </div>
+          {isOpen && <MenuDetails itemCards={itemCards} />}
+        </div>
 
-        )
-      })
-     }
-    </div>
-   </>
-  )
+        <hr className={`my-3 border-${card["@type"] ? "[10px]" : "[4px]"}`} />
+      </>
+    );
+  } else {
+    const { title, categories = [] } = card; // Default to empty array if categories is undefined
+    return (
+      <div className="w-full">
+        <h1 className="text-[16px] font-bold leading-[20px] tracking-[-0.3px] text-black">
+          {title}
+        </h1>
+        {categories.map((data, i) => (
+          <MenuCard key={i} card={data} />
+        ))}
+      </div>
+    );
+  }
 }
 
-function Discount({data: {info: { header, offerLogo, couponCode },},index,}) {
+// menu card end of here
+
+
+// menu Details start is here 
+
+function MenuDetails({ itemCards }) {
+  // console.log(itemCards);
+  return (
+    <>
+      <div className="my-7">
+        {itemCards.map(({ card: { info }, i }) => {
+          console.log(info)
+          return (
+            <div key={i}>
+              {/* <h2>{info.name}</h2> */}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+
+// dicount section start is here 
+
+function Discount({
+  data: {
+    info: { header, offerLogo, couponCode },
+  },
+  index,
+}) {
   return (
     <div
       key={index}
@@ -260,12 +301,18 @@ Discount.propTypes = {
   }).isRequired,
   index: PropTypes.number.isRequired, // `index` at the top level
 };
+
 MenuCard.propTypes = {
-  itemCards: PropTypes.array.isRequired, // Validate `itemCards` as an array
-  title: PropTypes.string.isRequired,    // Validate `title` as a string
+  card: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    itemCards: PropTypes.array,
+    categories: PropTypes.array,
+    "@type": PropTypes.string, // Validate '@type' as a string (optional)
+  }).isRequired,
 };
+
 MenuDetails.propTypes = {
   itemCards: PropTypes.array.isRequired, // Validate `itemCards` as an array
-  title: PropTypes.string.isRequired,    // Validate `title` as a string
+  title: PropTypes.string.isRequired, // Validate `title` as a string
 };
 export default RestaurantMenu;
